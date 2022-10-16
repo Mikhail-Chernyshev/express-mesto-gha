@@ -1,7 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 
-const routes = require("./routes/users");
+const routesCards = require("./routes/cards");
+const routesUsers = require('./routes/users');
 
 const { PORT = 3000, MONGO_URL = "mongodb://localhost:27017/mestodb" } =
   process.env;
@@ -20,7 +21,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(routes);
+app.use(routesCards);
+app.use(routesUsers);
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);

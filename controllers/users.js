@@ -1,55 +1,85 @@
+const { default: mongoose } = require("mongoose");
+const {
+  WRONG_DATA_CODE,
+  WRONG_ID_CODE,
+  ERROR_SERVER_CODE,
+} = require("../utils/constants");
 const User = require("../models/user");
 
-const createUser = (req, res) => {
-  User.create(req.body)
-    .then((user) => {
-      res.status(201).send(user);
-    })
-    .catch((err) => {
-      res.status(500).send({ err });
-    });
+const createUser = async (req, res) => {
+  try {
+    const user = await User.create(req.body);
+    return res.send(user);
+  } catch (err) {
+    if (err instanceof mongoose.Error.ValidationError) {
+      return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
+    }
+    return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
+  }
 };
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => {
-      res.send({ data: users });
-    })
-    .catch((err) => {
-      res.status(500).send({ err });
-    });
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    return res.send(users);
+  } catch (err) {
+    return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
+  }
 };
 
-const getUser = (req, res) => {
-  User.findById(req.params.userId)
-    .then((user) => {
-      res.send({ data: user });
-    })
-    .catch((err) => {
-      res.status(500).send({ err });
-    });
+const getUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    return res.send(user);
+  } catch (err) {
+    if (err instanceof mongoose.Error.ValidationError) {
+      return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
+    }
+    if (err instanceof mongoose.Error.CastError) {
+      return res.status(WRONG_ID_CODE).send({ message: "User id not found" });
+    }
+    return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
+  }
 };
 
-const updateUser = (req, res) => {
-  const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true })
-    .then((user) => {
-      res.status(200).send({ data: user });
-    })
-    .catch((err) => {
-      res.status(500).send({ err });
-    });
+const updateUser = async (req, res) => {
+  try {
+    const { name, about } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, about },
+      { new: true }
+    );
+    return res.send(user);
+  } catch (err) {
+    if (err instanceof mongoose.Error.ValidationError) {
+      return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
+    }
+    if (err instanceof mongoose.Error.CastError) {
+      return res.status(WRONG_ID_CODE).send({ message: "User id not found" });
+    }
+    return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
+  }
 };
 
-const updateAvatar = (req, res) => {
-  const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    .then((user) => {
-      res.status(200).send({ data: user });
-    })
-    .catch((err) => {
-      res.status(500).send({ err });
-    });
+const updateAvatar = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatar },
+      { new: true }
+    );
+    return res.send(user);
+  } catch (err) {
+    if (err instanceof mongoose.Error.ValidationError) {
+      return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
+    }
+    if (err instanceof mongoose.Error.CastError) {
+      return res.status(WRONG_ID_CODE).send({ message: "User id not found" });
+    }
+    return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
+  }
 };
 
 module.exports = {

@@ -1,63 +1,81 @@
+const { default: mongoose } = require("mongoose");
+const {
+  WRONG_DATA_CODE,
+  WRONG_ID_CODE,
+  ERROR_SERVER_CODE,
+} = require("../utils/constants");
 const Card = require("../models/card");
 
-const getCards = (req, res) => {
-  Card.find({})
-    .then((cards) => {
-      res.send({ data: cards });
-    })
-    .catch((err) => {
-      res.status(500).send({ err });
-    });
+const getCards = async (req, res) => {
+  try {
+    const cards = await Card.find({});
+    return res.send(cards);
+  } catch (err) {
+    return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
+  }
 };
 
-const createCard = (req, res) => {
-  const { name, link } = req.body;
-  const owner = req.user._id;
-  Card.create({ name, link, owner })
-    .then((card) => {
-      res.status(201).send(card);
-    })
-    .catch((err) => {
-      res.status(500).send({ err });
-    });
+const createCard = async (req, res) => {
+  try {
+    const { name, link } = req.body;
+    const owner = req.user._id;
+    const card = await Card.create({ name, link, owner });
+    return res.send(card);
+  } catch (err) {
+    if (err instanceof mongoose.Error.ValidationError) {
+      return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
+    }
+    return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
+  }
 };
 
-const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => {
-      res.send({ data: card });
-    })
-    .catch((err) => {
-      res.status(500).send({ err });
-    });
+const deleteCard = async (req, res) => {
+  try {
+    const card = await Card.findByIdAndRemove(req.params.cardId);
+    return res.send(card);
+  } catch (err) {
+    if (err instanceof mongoose.Error.CastError) {
+      return res.status(WRONG_ID_CODE).send({ message: "Card id not found" });
+    }
+  }
 };
 
-const addLike = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
-  )
-    .then((card) => {
-      res.send(card);
-    })
-    .catch((err) => {
-      res.status(500).send({ err });
-    });
+const addLike = async (req, res) => {
+  try {
+    const card = await Card.findByIdAndUpdate(
+      req.params.cardId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true }
+    );
+    return res.send(card);
+  } catch (err) {
+    if (err instanceof mongoose.Error.ValidationError) {
+      return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
+    }
+    if (err instanceof mongoose.Error.CastError) {
+      return res.status(WRONG_ID_CODE).send({ message: "Card id not found" });
+    }
+    return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
+  }
 };
 
-const removeLike = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-  )
-    .then((card) => {
-      res.send(card);
-    })
-    .catch((err) => {
-      res.status(500).send({ err });
-    });
+const removeLike = async (req, res) => {
+  try {
+    const card = await Card.findByIdAndUpdate(
+      req.params.cardId,
+      { $pull: { likes: req.user._id } },
+      { new: true }
+    );
+    return res.send(card);
+  } catch (err) {
+    if (err instanceof mongoose.Error.ValidationError) {
+      return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
+    }
+    if (err instanceof mongoose.Error.CastError) {
+      return res.status(WRONG_ID_CODE).send({ message: "Card id not found" });
+    }
+    return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
+  }
 };
 
 module.exports = {
