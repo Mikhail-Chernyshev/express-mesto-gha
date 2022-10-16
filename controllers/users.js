@@ -36,7 +36,7 @@ const getUser = async (req, res) => {
       return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
     }
     if (err instanceof mongoose.Error.CastError) {
-      return res.status(WRONG_ID_CODE).send({ message: "User id not found" });
+      return res.status(WRONG_ID_CODE).send({ message: "User with this id not found" });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
   }
@@ -56,7 +56,7 @@ const updateUser = async (req, res) => {
       return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
     }
     if (err instanceof mongoose.Error.CastError) {
-      return res.status(WRONG_ID_CODE).send({ message: "User id not found" });
+      return res.status(WRONG_ID_CODE).send({ message: "User with this id not found" });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
   }
@@ -76,7 +76,7 @@ const updateAvatar = async (req, res) => {
       return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
     }
     if (err instanceof mongoose.Error.CastError) {
-      return res.status(WRONG_ID_CODE).send({ message: "User id not found" });
+      return res.status(WRONG_ID_CODE).send({ message: "User with this id not found" });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
   }
