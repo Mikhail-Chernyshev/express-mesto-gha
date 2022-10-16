@@ -57,9 +57,7 @@ const addLike = async (req, res) => {
     return res.send(card);
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
-      return res
-        .status(WRONG_DATA_CODE)
-        .send({ message: "NOT CORRECT DATA" });
+      return res.status(WRONG_DATA_CODE).send({ message: "NOT CORRECT DATA" });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
   }
@@ -72,15 +70,17 @@ const removeLike = async (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true }
     );
-    return res.send(card);
-  } catch (err) {
-    if (err instanceof mongoose.Error.ValidationError) {
-      return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
-    }
-    if (err instanceof mongoose.Error.CastError) {
+    if (card == null) {
       return res
         .status(WRONG_ID_CODE)
         .send({ message: "Card with this id not found" });
+    }
+    return res.send(card);
+  } catch (err) {
+    if (err instanceof mongoose.Error.CastError) {
+      return res
+        .status(WRONG_DATA_CODE)
+        .send({ message: "NOT CORRECT DATA" });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
   }
