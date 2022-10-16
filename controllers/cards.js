@@ -19,9 +19,7 @@ const createCard = async (req, res) => {
   try {
     const { name, link } = req.body;
     const owner = req.user._id;
-    const card = await Card.create(
-      { name, link, owner },
-    );
+    const card = await Card.create({ name, link, owner });
     return res.send(card);
   } catch (err) {
     if (err instanceof mongoose.Error.ValidationError) {
@@ -51,15 +49,17 @@ const addLike = async (req, res) => {
       { $addToSet: { likes: req.user._id } },
       { new: true }
     );
+    if (card == null) {
+      return res
+        .status(WRONG_ID_CODE)
+        .send({ message: "Card with this id not found" });
+    }
     return res.send(card);
   } catch (err) {
-    if (err instanceof mongoose.Error.ValidationError) {
-      return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
-    }
     if (err instanceof mongoose.Error.CastError) {
       return res
         .status(WRONG_DATA_CODE)
-        .send({ message: "Card with this id not found" });
+        .send({ message: "NOT CORRECT DATA" });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
   }
