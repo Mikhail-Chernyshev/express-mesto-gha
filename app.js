@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-
+const { WRONG_ID_CODE } = require("./utils/constants");
 const routesCards = require("./routes/cards");
 const routesUsers = require("./routes/users");
 
@@ -23,11 +23,7 @@ app.use((req, res, next) => {
 app.use(routesCards);
 app.use(routesUsers);
 app.use("*", (req, res) => {
-  try {
-    throw new NotFoundError("Страница не найдена");
-  } catch (err) {
-    next(err);
-  }
+  res.status(WRONG_ID_CODE).send({ message: "PAGE NOT FOUND" });
 });
 
 app.listen(PORT, () => {
