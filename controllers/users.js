@@ -32,6 +32,9 @@ const getUser = async (req, res) => {
     const user = await User.findById(req.params.userId);
     return res.send(user);
   } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(WRONG_DATA_CODE).send({ message: "Not Correct user id" });
+    }
     if (err instanceof mongoose.Error.ValidationError) {
       return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
     }
