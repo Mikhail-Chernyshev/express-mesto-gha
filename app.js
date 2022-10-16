@@ -7,7 +7,9 @@ const routesUsers = require('./routes/users');
 const { PORT = 3000, MONGO_URL = "mongodb://localhost:27017/mestodb" } =
   process.env;
 
-mongoose.connect(MONGO_URL);
+mongoose.connect(MONGO_URL, {
+  useNewUrlParser: true,
+});
 
 const app = express();
 

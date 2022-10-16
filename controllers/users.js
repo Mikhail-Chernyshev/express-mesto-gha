@@ -37,17 +37,14 @@ const getUser = async (req, res) => {
     }
     return res.send(user);
   } catch (err) {
-    // if (err.name === "CastError") {
-    //   return res.status(WRONG_DATA_CODE).send({ message: "Not Correct user id" });
-    // }
-    if (err instanceof mongoose.Error.ValidationError) {
+    if (err.message === "NotFound" ) {
       return res.status(WRONG_DATA_CODE).send({ message: "Not correct data" });
     }
-    if (err instanceof mongoose.Error.CastError) {
-      return res
-        .status(WRONG_DATA_CODE)
-        .send({ message: "User with this id not found" });
-    }
+    // if (err instanceof mongoose.Error.CastError) {
+    //   return res
+    //     .status(WRONG_DATA_CODE)
+    //     .send({ message: "User with this id not found" });
+    // }
     return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
   }
 };
