@@ -50,7 +50,7 @@ const updateUser = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { name, about },
-      { new: true }
+      { new: true, runValidators: true }
     );
     return res.send(user);
   } catch (err) {
