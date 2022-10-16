@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
@@ -29,6 +29,6 @@ const cardSchema = new Schema(
       default: Date.now,
     },
   },
-  { versionKey: false }
+  { versionKey: false },
 );
-module.exports = mongoose.model("card", cardSchema);
+module.exports = mongoose.model('card', cardSchema);
