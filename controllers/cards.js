@@ -21,7 +21,6 @@ const createCard = async (req, res) => {
     const owner = req.user._id;
     const card = await Card.create(
       { name, link, owner },
-      { runValidators: true }
     );
     return res.send(card);
   } catch (err) {

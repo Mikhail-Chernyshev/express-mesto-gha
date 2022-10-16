@@ -30,6 +30,11 @@ const getUsers = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.userId);
+    if (user == null) {
+      return res
+        .status(WRONG_ID_CODE)
+        .send({ message: "User with this id not found" });
+    }
     return res.send(user);
   } catch (err) {
     // if (err.name === "CastError") {
