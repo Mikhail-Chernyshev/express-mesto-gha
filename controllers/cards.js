@@ -58,7 +58,7 @@ const addLike = async (req, res) => {
     }
     if (err instanceof mongoose.Error.CastError) {
       return res
-        .status(WRONG_ID_CODE)
+        .status(WRONG_DATA_CODE)
         .send({ message: "Card with this id not found" });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
