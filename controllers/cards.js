@@ -32,11 +32,16 @@ const createCard = async (req, res) => {
 const deleteCard = async (req, res) => {
   try {
     const card = await Card.findByIdAndRemove(req.params.cardId);
+    if (card == null) {
+      return res
+        .status(WRONG_ID_CODE)
+        .send({ message: "Card with this id not found" });
+    }
     return res.send(card);
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
       return res
-        .status(WRONG_ID_CODE)
+        .status(WRONG_DATA_CODE)
         .send({ message: "Card with this id not found" });
     }
   }
@@ -78,9 +83,7 @@ const removeLike = async (req, res) => {
     return res.send(card);
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
-      return res
-        .status(WRONG_DATA_CODE)
-        .send({ message: "NOT CORRECT DATA" });
+      return res.status(WRONG_DATA_CODE).send({ message: "NOT CORRECT DATA" });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: "Error on server" });
   }
