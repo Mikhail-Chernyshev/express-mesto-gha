@@ -45,6 +45,7 @@ const deleteCard = async (req, res) => {
         .status(WRONG_DATA_CODE)
         .send({ message: 'Card with this id not found' });
     }
+    return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
   }
 };
 
@@ -53,7 +54,7 @@ const addLike = async (req, res) => {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     );
     if (card == null) {
       return res
@@ -74,7 +75,7 @@ const removeLike = async (req, res) => {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     );
     if (card == null) {
       return res

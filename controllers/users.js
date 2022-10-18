@@ -52,15 +52,15 @@ const updateUser = async (req, res) => {
       { name, about },
       { new: true, runValidators: true },
     );
-    return res.send(user);
-  } catch (err) {
-    if (err instanceof mongoose.Error.ValidationError) {
-      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
-    }
-    if (err instanceof mongoose.Error.CastError) {
+    if (user == null) {
       return res
         .status(WRONG_ID_CODE)
         .send({ message: 'User with this id not found' });
+    }
+    return res.send(user);
+  } catch (err) {
+    if (err instanceof mongoose.Error.CastError) {
+      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
   }
@@ -74,14 +74,16 @@ const updateAvatar = async (req, res) => {
       { avatar },
       { new: true },
     );
-    return res.send(user);
-  } catch (err) {
-    if (err instanceof mongoose.Error.ValidationError) {
-      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
-    }
-    if (err instanceof mongoose.Error.CastError) {
+    if (user == null) {
       return res
         .status(WRONG_ID_CODE)
+        .send({ message: 'User with this id not found' });
+    }
+    return res.send(user);
+  } catch (err) {
+    if (err instanceof mongoose.Error.CastError) {
+      return res
+        .status(WRONG_DATA_CODE)
         .send({ message: 'User with this id not found' });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
