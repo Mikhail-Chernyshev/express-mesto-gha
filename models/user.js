@@ -25,6 +25,12 @@ const userSchema = new Schema(
       required: false,
       default:
         'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+      validate: {
+        validator(v) {
+          return /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-/]))?/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid link!`,
+      },
     },
     email: {
       type: String,
@@ -38,7 +44,7 @@ const userSchema = new Schema(
       select: false, // необходимо добавить поле select
     },
   },
-  { versionKey: false },
+  { versionKey: false }
 );
 // eslint-disable-next-line func-names
 userSchema.statics.findUserByCredentials = function (email, password) {
