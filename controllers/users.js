@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken
-const { NODE_ENV, JWT_SECRET } = process.env;
+// const { NODE_ENV, JWT_SECRET } = process.env;
 const { default: mongoose } = require('mongoose');
 const {
   WRONG_DATA_CODE,
@@ -8,59 +8,75 @@ const {
   ERROR_SERVER_CODE,
 } = require('../utils/constants');
 const User = require('../models/user');
+const { signToken } = require('../utils/jwt');
+const { request } = require('express');
+const { SECRET_JWT } = require('../utils/constants');
 
-const login = (req, res) => {
-  const { email, password } = req.body;
-  User.findOne({ email })
-    .select(+password)
-    .then((user) => {
-      if (user === null) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-      return bcrypt.compare(password, user.password);
-    })
-    .then((matched) => {
-      if (!matched) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-      const token = jwt.sign(
-        { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-        { expiresIn: '7d' }
-      );
-      res
-        .cookie('jwt', token, {
-          maxAge: 3600000 * 7,
-          httpOnly: true,
-          sameSite: true,
-        })
-        .send({
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
-          email: user.email,
-          _id: user._id,
-        });
-    })
+const getMe = (req, res) => {
+  const idUser = req.user._id;
+  User.findById(idUser)
+    .then((user) =>
+      res.status(200).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+        _id: user._id,
+      })
+    )
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      console.log(err);
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password)
+    return res.status(400).send({ message: 'password or email empty' });
+
+  User.findOne({ email })
+    .select('+password')
+    .then((user) => {
+      bcrypt.compare(password, user.password).then((match) => {
+        if (!match)
+          return res.status(401).send({ message: 'wrong password or email' });
+        const result = signToken(user.id);
+        res
+          .status(200)
+          .cookie('authorization', result, {
+            maxAge: 3600000 * 24 * 7,
+            // httpOnly: true,
+          })
+          .send({ result, message: 'Athorization successful' });
+
+        if (!result) return res.status(500).send({ message: 'token error' });
+        // return res.status(200).send( result );
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).send({ message: err.message });
+    });
+  // return res.status(200).send('hello from auth');
+};
+
+// eslint-disable-next-line consistent-return
 const createUser = async (req, res) => {
   if (!req.body.email || !req.body.password) {
     return res.status(400).json({
       message: 'Логин и пароль обязательны для заполнения',
     });
   }
+
   const { email, password, name, about, avatar } = req.body;
+
   try {
     const hashPassword = await bcrypt.hash(password, 10);
     const user = await User.findOne({ email });
     if (user) {
       res
         .status(409)
-        .json({ message: 'Пользователь с таким логином уже зарегистрирован' });
+        .json({ message: 'Пользователь с таким email уже зарегистрирован' });
     } else {
       await User.create({
         email,
@@ -79,7 +95,7 @@ const createUser = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(400).end();
+    res.status(500).end();
   }
 };
 
@@ -115,7 +131,7 @@ const updateUser = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { name, about },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
     if (user == null) {
       return res
@@ -137,7 +153,7 @@ const updateAvatar = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { avatar },
-      { new: true },
+      { new: true }
     );
     if (user == null) {
       return res
@@ -162,4 +178,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
+  getMe,
 };
