@@ -61,7 +61,7 @@ const login = (req, res) => {
 };
 
 // eslint-disable-next-line consistent-return
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   if (!req.body.email || !req.body.password) {
     return res.status(400).json({
       message: 'Логин и пароль обязательны для заполнения',
@@ -73,6 +73,7 @@ const createUser = async (req, res) => {
   try {
     const hashPassword = await bcrypt.hash(password, 10);
     const user = await User.findOne({ email });
+
     if (user) {
       res
         .status(409)
@@ -94,9 +95,17 @@ const createUser = async (req, res) => {
         },
       });
     }
-  } catch (error) {
-    res.status(500).end();
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({
+        message: 'неверное имя',
+      });
+    }
+    next(err);
   }
+  // catch (error) {
+  // res.status(500).end();
+  // }
 };
 
 const getUsers = async (req, res) => {
