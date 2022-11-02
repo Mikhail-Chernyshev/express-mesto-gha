@@ -13,19 +13,21 @@ const { request } = require('express');
 const { SECRET_JWT } = require('../utils/constants');
 
 const getMe = (req, res) => {
-  const idUser = req.user._id;
-  User.findById(idUser)
-    .then((user) =>
-      res.status(200).send({
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return next(new NotFoundError('Объект не найден'));
+      }
+      return res.status(200).send({
         name: user.name,
         about: user.about,
         avatar: user.avatar,
         email: user.email,
         _id: user._id,
-      })
-    )
+      });
+    })
     .catch((err) => {
-      console.log(err);
+      console.log('pipla');
     });
 };
 
@@ -88,10 +90,10 @@ const createUser = async (req, res, next) => {
       });
       res.status(200).send({
         user: {
-          email: user.email,
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
+          email,
+          name,
+          about,
+          avatar,
         },
       });
     }
