@@ -39,6 +39,9 @@ const login = (req, res) => {
   User.findOne({ email })
     .select('+password')
     .then((user) => {
+      if (!user) {
+        return res.status(401).send({ message: 'wrong email or password' });
+      }
       bcrypt.compare(password, user.password).then((match) => {
         if (!match)
           return res.status(401).send({ message: 'wrong password or email' });
@@ -104,9 +107,6 @@ const createUser = async (req, res, next) => {
     }
     next(err);
   }
-  // catch (error) {
-  // res.status(500).end();
-  // }
 };
 
 const getUsers = async (req, res) => {
