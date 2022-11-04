@@ -69,7 +69,6 @@ const createUser = async (req, res, next) => {
       message: 'Логин и пароль обязательны для заполнения',
     });
   }
-
   const { email, password, name, about, avatar } = req.body;
 
   try {

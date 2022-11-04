@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 // eslint-disable-next-line import/no-unresolved
-const { celebrate, Joi } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 const { WRONG_ID_CODE } = require('./utils/constants');
 const routesCards = require('./routes/cards');
 const routesUsers = require('./routes/users');
@@ -30,7 +30,7 @@ app.post(
       password: Joi.string().required(),
     }),
   }),
-  login,
+  login
 );
 app.post(
   '/signup',
@@ -45,8 +45,10 @@ app.post(
       password: Joi.string().required(),
     }),
   }),
-  createUser,
+  createUser
 );
+app.use(errors());
+
 app.use(auth);
 app.use(routesCards);
 app.use(routesUsers);
