@@ -10,7 +10,7 @@ const routesUsers = require('./routes/users');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 
-const { PORT = 4000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } =
+const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } =
   process.env;
 
 mongoose.connect(MONGO_URL, { useNewUrlParser: true });
