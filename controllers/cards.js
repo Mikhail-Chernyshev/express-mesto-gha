@@ -37,7 +37,8 @@ const deleteCard = async (req, res) => {
       return res
         .status(WRONG_ID_CODE)
         .send({ message: 'Card with this id not found' });
-    }  if (card.owner._id.toString() !== req.user.toString()) {
+    }
+    if (card.owner._id.toString() !== req.user.toString()) {
       return res.status(403).send({ message: 'you can not delete this card' });
     }
     return res.send(card);

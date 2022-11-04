@@ -16,14 +16,14 @@ router.post(
   celebrate({
     params: Joi.object().keys({
       name: Joi.string().min(2).max(30),
-      link: Joi.string()
-        .required()
-        .regex(
-          /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/
-        ),
+      // link: Joi.string()
+      //   .required()
+      //   .regex(
+      //     /http(s?):\/\/(www\.)?[0-9a-zA-Z-]+\.[a-zA-Z]+([0-9a-zA-Z-._~:/?#[\]@!$&'()*+,;=]+)/,
+      //   ),
     }),
   }),
-  createCard
+  createCard,
 );
 
 router.delete(
@@ -57,5 +57,4 @@ router.delete(
 );
 
 router.use(errors());
-
 module.exports = router;
