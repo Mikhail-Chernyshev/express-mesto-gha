@@ -9,14 +9,15 @@ const {
 } = require('../utils/constants');
 const User = require('../models/user');
 const { signToken } = require('../utils/jwt');
-const { request } = require('express');
-const { SECRET_JWT } = require('../utils/constants');
+// const { request } = require('express');
+// const { SECRET_JWT } = require('../utils/constants');
 
 const getMe = (req, res) => {
-  User.findById(req.user._id)
+  console.log(req.params);
+  User.findById(req.user)
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError('Объект не найден'));
+        return res.status(401).send('pipka');
       }
       return res.status(200).send({
         name: user.name,
@@ -27,7 +28,7 @@ const getMe = (req, res) => {
       });
     })
     .catch((err) => {
-      console.log('pipla');
+      return console.log('pipla');
     });
 };
 

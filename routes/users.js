@@ -10,7 +10,7 @@ const {
 
 router.get('/users', getUsers);
 
-router.get('users/me', getMe);
+router.get('/users/me', getMe);
 
 // router.post('/signin', login);
 
