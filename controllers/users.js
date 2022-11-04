@@ -140,7 +140,7 @@ const updateUser = async (req, res) => {
   try {
     const { name, about } = req.body;
     const user = await User.findByIdAndUpdate(
-      req.user._id,
+      req.user,
       { name, about },
       { new: true, runValidators: true }
     );
@@ -153,18 +153,23 @@ const updateUser = async (req, res) => {
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
       return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
+    } else if (err instanceof mongoose.Error.ValidationError) {
+      return res
+        .status(WRONG_DATA_CODE)
+        .send({ message: 'Not correctttt data' });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
   }
 };
 
 const updateAvatar = async (req, res) => {
+  const { avatar } = req.body;
+
   try {
-    const { avatar } = req.body;
     const user = await User.findByIdAndUpdate(
-      req.user._id,
+      req.user,
       { avatar },
-      { new: true }
+      { new: true, runValidators: true }
     );
     if (user == null) {
       return res
