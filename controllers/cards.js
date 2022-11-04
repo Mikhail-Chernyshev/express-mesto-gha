@@ -39,7 +39,7 @@ const deleteCard = async (req, res) => {
         .send({ message: 'Card with this id not found' });
     }
     if (card.owner._id.toString() !== req.user.toString()) {
-      return res.status(403).send({ message: 'you can not delete this card' });
+      return res.status(403).send({ message: 'You can not delete this card' });
     }
     return res.send(card);
   } catch (err) {
@@ -67,7 +67,7 @@ const addLike = async (req, res) => {
     return res.send(card);
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
-      return res.status(WRONG_DATA_CODE).send({ message: 'NOT CORRECT DATA' });
+      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
   }
@@ -88,7 +88,7 @@ const removeLike = async (req, res) => {
     return res.send(card);
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
-      return res.status(WRONG_DATA_CODE).send({ message: 'NOT CORRECT DATA' });
+      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
   }

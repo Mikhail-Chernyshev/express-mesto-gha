@@ -10,8 +10,7 @@ const routesUsers = require('./routes/users');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 
-const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } =
-  process.env;
+const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 mongoose.connect(MONGO_URL, { useNewUrlParser: true });
 
@@ -30,7 +29,7 @@ app.post(
       password: Joi.string().required(),
     }),
   }),
-  login
+  login,
 );
 app.post(
   '/signup',
@@ -45,7 +44,7 @@ app.post(
       password: Joi.string().required(),
     }),
   }),
-  createUser
+  createUser,
 );
 app.use(errors());
 

@@ -20,7 +20,7 @@ router.get(
       userId: Joi.string().hex().length(24),
     }),
   }),
-  getUser
+  getUser,
 );
 
 router.patch(
@@ -31,7 +31,7 @@ router.patch(
       about: Joi.string().min(2).max(30),
     }),
   }),
-  updateUser
+  updateUser,
 );
 
 router.patch(
@@ -43,7 +43,7 @@ router.patch(
       ),
     }),
   }),
-  updateAvatar
+  updateAvatar,
 );
 router.use(errors());
 

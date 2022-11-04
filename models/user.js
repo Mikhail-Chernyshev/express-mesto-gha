@@ -45,7 +45,7 @@ const userSchema = new Schema(
       select: false, // необходимо добавить поле select
     },
   },
-  { versionKey: false }
+  { versionKey: false },
 );
 // eslint-disable-next-line func-names
 userSchema.statics.findUserByCredentials = function (email, password) {
@@ -53,11 +53,13 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     .select('+password')
     .then((user) => {
       if (!user) {
-        return res.status(400).send('message or email empty');
+        // eslint-disable-next-line no-undef
+        return res.status(400).send('Message or email empty');
       }
       return bcrypt.compare(password, user.password).then((match) => {
         if (!match) {
-          return res.status(400).send('message or email1 empty');
+          // eslint-disable-next-line no-undef
+          return res.status(400).send('Message or email1 empty');
         }
         return user;
       });

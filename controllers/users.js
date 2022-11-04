@@ -1,6 +1,4 @@
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken
-// const { NODE_ENV, JWT_SECRET } = process.env;
 const { default: mongoose } = require('mongoose');
 const {
   WRONG_DATA_CODE,
@@ -9,15 +7,12 @@ const {
 } = require('../utils/constants');
 const User = require('../models/user');
 const { signToken } = require('../utils/jwt');
-// const { request } = require('express');
-// const { SECRET_JWT } = require('../utils/constants');
 
 const getMe = (req, res) => {
-  console.log(req.params);
   User.findById(req.user)
     .then((user) => {
       if (!user) {
-        return res.status(401).send('pipka');
+        return res.status(401).send('Not correct data');
       }
       return res.status(200).send({
         name: user.name,
@@ -27,43 +22,39 @@ const getMe = (req, res) => {
         _id: user._id,
       });
     })
-    .catch((err) => {
-      return console.log('pipla');
-    });
+    .catch((err) => console.log({ message: err }));
 };
 
+// eslint-disable-next-line consistent-return
 const login = (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
-    return res.status(400).send({ message: 'password or email empty' });
+    return res.status(400).send({ message: 'Password or email empty' });
 
   User.findOne({ email })
     .select('+password')
+    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
-        return res.status(401).send({ message: 'wrong email or password' });
+        return res.status(401).send({ message: 'Wrong email or password' });
       }
+      // eslint-disable-next-line consistent-return
       bcrypt.compare(password, user.password).then((match) => {
         if (!match)
-          return res.status(401).send({ message: 'wrong password or email' });
+          return res.status(401).send({ message: 'Wrong password or email' });
         const result = signToken(user.id);
         res
           .status(200)
           .cookie('authorization', result, {
             maxAge: 3600000 * 24 * 7,
-            // httpOnly: true,
+            httpOnly: true,
           })
           .send({ result, message: 'Athorization successful' });
 
-        if (!result) return res.status(500).send({ message: 'token error' });
-        // return res.status(200).send( result );
+        if (!result) return res.status(500).send({ message: 'Token wrong' });
       });
     })
-    .catch((err) => {
-      console.log(err);
-      return res.status(500).send({ message: err.message });
-    });
-  // return res.status(200).send('hello from auth');
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 // eslint-disable-next-line consistent-return
@@ -73,7 +64,10 @@ const createUser = async (req, res, next) => {
       message: 'Логин и пароль обязательны для заполнения',
     });
   }
-  const { email, password, name, about, avatar } = req.body;
+  const { body } = req;
+  const {
+    email, password, name, about, avatar,
+  } = body;
 
   try {
     const hashPassword = await bcrypt.hash(password, 10);
@@ -103,7 +97,7 @@ const createUser = async (req, res, next) => {
   } catch (err) {
     if (err.name === 'ValidationError') {
       return res.status(400).json({
-        message: 'неверное имя',
+        message: 'Wrong name',
       });
     }
     next(err);
@@ -142,7 +136,7 @@ const updateUser = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user,
       { name, about },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
     if (user == null) {
       return res
@@ -155,9 +149,7 @@ const updateUser = async (req, res) => {
       return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
     }
     if (err.name === 'ValidationError') {
-      return res
-        .status(WRONG_DATA_CODE)
-        .send({ message: 'Not correctttt data' });
+      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
     }
     return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
   }
@@ -170,7 +162,7 @@ const updateAvatar = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user,
       { avatar },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
     if (user == null) {
       return res
