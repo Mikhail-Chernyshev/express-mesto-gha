@@ -153,7 +153,8 @@ const updateUser = async (req, res) => {
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
       return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
-    } else if (err instanceof mongoose.Error.ValidationError) {
+    }
+    if (err.name === 'ValidationError') {
       return res
         .status(WRONG_DATA_CODE)
         .send({ message: 'Not correctttt data' });
@@ -178,7 +179,7 @@ const updateAvatar = async (req, res) => {
     }
     return res.send(user);
   } catch (err) {
-    if (err instanceof mongoose.Error.CastError) {
+    if (err.name === 'ValidationError') {
       return res
         .status(WRONG_DATA_CODE)
         .send({ message: 'User with this id not found' });
