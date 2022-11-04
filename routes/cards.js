@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { celebrate, Joi } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 
 const {
   getCards,
@@ -56,5 +56,5 @@ router.delete(
   removeLike
 );
 
-// router.use(errors());
+router.use(errors());
 module.exports = router;
