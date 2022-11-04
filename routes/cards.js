@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { errors, celebrate, Joi } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 
 const {
   getCards,
@@ -14,13 +14,13 @@ router.get('/cards', getCards);
 router.post(
   '/cards',
   celebrate({
-    params: Joi.object().keys({
+    body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
-      // link: Joi.string()
-      //   .required()
-      //   .regex(
-      //     /http(s?):\/\/(www\.)?[0-9a-zA-Z-]+\.[a-zA-Z]+([0-9a-zA-Z-._~:/?#[\]@!$&'()*+,;=]+)/,
-      //   ),
+      link: Joi.string()
+        .required()
+        .regex(
+          /http(s?):\/\/(www\.)?[0-9a-zA-Z-]+\.[a-zA-Z]+([0-9a-zA-Z-._~:/?#[\]@!$&'()*+,;=]+)/,
+        ),
     }),
   }),
   createCard,
@@ -56,5 +56,5 @@ router.delete(
   removeLike
 );
 
-router.use(errors());
+// router.use(errors());
 module.exports = router;

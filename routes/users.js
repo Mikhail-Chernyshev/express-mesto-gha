@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { errors, celebrate, Joi } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 
 const {
   getUsers,
@@ -26,7 +26,7 @@ router.get(
 router.patch(
   '/users/me',
   celebrate({
-    params: Joi.object().keys({
+    body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
     }),
@@ -43,8 +43,8 @@ router.patch(
       ),
     }),
   }),
-  updateAvatar
+  updateAvatar,
 );
-router.use(errors());
+// router.use(errors());
 
 module.exports = router;
