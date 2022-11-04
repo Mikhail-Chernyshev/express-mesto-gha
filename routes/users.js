@@ -37,13 +37,13 @@ router.patch(
 router.patch(
   '/users/me/avatar',
   celebrate({
-    params: Joi.object().keys({
+    body: Joi.object().keys({
       avatar: Joi.string().regex(
-        /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/
+        /http(s?):\/\/(www\.)?[0-9a-zA-Z-]+\.[a-zA-Z]+([0-9a-zA-Z-._~:/?#[\]@!$&'()*+,;=]+)/
       ),
     }),
   }),
-  updateAvatar,
+  updateAvatar
 );
 router.use(errors());
 
