@@ -33,7 +33,7 @@ router.delete(
       cardId: Joi.string().hex().length(24),
     }),
   }),
-  deleteCard
+  deleteCard,
 );
 
 router.put(
@@ -43,7 +43,7 @@ router.put(
       cardId: Joi.string().hex().length(24),
     }),
   }),
-  addLike
+  addLike,
 );
 
 router.delete(
@@ -53,7 +53,7 @@ router.delete(
       cardId: Joi.string().hex().length(24),
     }),
   }),
-  removeLike
+  removeLike,
 );
 
 router.use(errors());

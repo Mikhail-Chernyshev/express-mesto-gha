@@ -22,14 +22,13 @@ const getMe = (req, res) => {
         _id: user._id,
       });
     })
-    .catch((err) => console.log({ message: err }));
+    .catch((err) => res.status(500).send({ message: err }));
 };
 
 // eslint-disable-next-line consistent-return
 const login = (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password)
-    return res.status(400).send({ message: 'Password or email empty' });
+  if (!email || !password) { return res.status(400).send({ message: 'Password or email empty' }); }
 
   User.findOne({ email })
     .select('+password')
@@ -40,8 +39,7 @@ const login = (req, res) => {
       }
       // eslint-disable-next-line consistent-return
       bcrypt.compare(password, user.password).then((match) => {
-        if (!match)
-          return res.status(401).send({ message: 'Wrong password or email' });
+        if (!match) { return res.status(401).send({ message: 'Wrong password or email' }); }
         const result = signToken(user.id);
         res
           .status(200)
