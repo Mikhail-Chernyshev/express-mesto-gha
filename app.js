@@ -52,8 +52,8 @@ app.use(auth);
 app.use('/cards', routesCards);
 app.use('/users', routesUsers);
 
-app.use("*", (req, res) => {
-  res.status(WRONG_ID_CODE).send({ message: "PAGE NOT FOUND" });
+app.use('*', auth, (req, res, next) => {
+  next(err);
 });
 app.use(errors());
 app.use((err, req, res, next) => { errorServer(err, res, next); });
