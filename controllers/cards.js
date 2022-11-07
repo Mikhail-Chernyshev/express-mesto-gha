@@ -6,16 +6,16 @@ const {
 } = require('../utils/constants');
 const Card = require('../models/card');
 
-const getCards = async (req, res) => {
+const getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
     return res.send(cards);
   } catch (err) {
-    return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
+    next(err);
   }
 };
 
-const createCard = async (req, res) => {
+const createCard = async (req, res, next) => {
   try {
     const { name, link } = req.body;
     const owner = req.user;
@@ -25,12 +25,12 @@ const createCard = async (req, res) => {
     if (err instanceof mongoose.Error.ValidationError) {
       return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
     }
-    return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
+    next(err);
   }
 };
 
 // eslint-disable-next-line consistent-return
-const deleteCard = async (req, res) => {
+const deleteCard = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndRemove(req.params.cardId);
     if (card == null) {
@@ -48,16 +48,16 @@ const deleteCard = async (req, res) => {
         .status(WRONG_DATA_CODE)
         .send({ message: 'Card with this id not found' });
     }
-    return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
+    next(err);
   }
 };
 
-const addLike = async (req, res) => {
+const addLike = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     );
     if (card == null) {
       return res
@@ -69,16 +69,16 @@ const addLike = async (req, res) => {
     if (err instanceof mongoose.Error.CastError) {
       return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
     }
-    return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
+    next(err);
   }
 };
 
-const removeLike = async (req, res) => {
+const removeLike = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     );
     if (card == null) {
       return res
@@ -90,7 +90,7 @@ const removeLike = async (req, res) => {
     if (err instanceof mongoose.Error.CastError) {
       return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
     }
-    return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
+    next(err);
   }
 };
 

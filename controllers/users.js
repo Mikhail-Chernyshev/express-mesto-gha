@@ -8,7 +8,7 @@ const {
 const User = require('../models/user');
 const { signToken } = require('../utils/jwt');
 
-const getMe = (req, res) => {
+const getMe = (req, res, next) => {
   User.findById(req.user)
     .then((user) => {
       if (!user) {
@@ -22,11 +22,11 @@ const getMe = (req, res) => {
         _id: user._id,
       });
     })
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 };
 
 // eslint-disable-next-line consistent-return
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) { return res.status(400).send({ message: 'Password or email empty' }); }
 
@@ -52,7 +52,7 @@ const login = (req, res) => {
         if (!result) return res.status(500).send({ message: 'Token wrong' });
       });
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => next(err));
 };
 
 // eslint-disable-next-line consistent-return
@@ -102,16 +102,16 @@ const createUser = async (req, res, next) => {
   }
 };
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     return res.send(users);
   } catch (err) {
-    return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
+    next(err)
   }
 };
 
-const getUser = async (req, res) => {
+const getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId);
     if (user == null) {
@@ -124,11 +124,11 @@ const getUser = async (req, res) => {
     if (err instanceof mongoose.Error.CastError) {
       return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
     }
-    return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
+    next(err);
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   try {
     const { name, about } = req.body;
     const user = await User.findByIdAndUpdate(
@@ -149,11 +149,11 @@ const updateUser = async (req, res) => {
     if (err.name === 'ValidationError') {
       return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
     }
-    return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
+    next(err);
   }
 };
 
-const updateAvatar = async (req, res) => {
+const updateAvatar = async (req, res, next) => {
   const { avatar } = req.body;
 
   try {
@@ -174,7 +174,7 @@ const updateAvatar = async (req, res) => {
         .status(WRONG_DATA_CODE)
         .send({ message: 'User with this id not found' });
     }
-    return res.status(ERROR_SERVER_CODE).send({ message: 'Error on server' });
+    next(err);
   }
 };
 
