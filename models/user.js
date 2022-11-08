@@ -1,6 +1,5 @@
 const validator = require('validator');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 
 const { Schema } = mongoose;
 
@@ -47,22 +46,5 @@ const userSchema = new Schema(
   },
   { versionKey: false },
 );
-// eslint-disable-next-line func-names
-userSchema.statics.findUserByCredentials = function (email, password) {
-  return this.findOne({ email })
-    .select('+password')
-    .then((user) => {
-      if (!user) {
-        // eslint-disable-next-line no-undef
-        return res.status(400).send('Message or email empty');
-      }
-      return bcrypt.compare(password, user.password).then((match) => {
-        if (!match) {
-          // eslint-disable-next-line no-undef
-          return res.status(400).send('Message or email1 empty');
-        }
-        return user;
-      });
-    });
-};
+
 module.exports = mongoose.model('user', userSchema);

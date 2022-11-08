@@ -1,11 +1,10 @@
 const { mongoose } = require('mongoose');
-const {
-  WRONG_DATA_CODE,
-  WRONG_ID_CODE,
-  ERROR_SERVER_CODE,
-} = require('../utils/constants');
 const Card = require('../models/card');
+const CastError = require('../errors/CastError');
+const NotFoundError = require('../errors/NotFoundError');
+const AccessError = require('../errors/AccessError');
 
+// eslint-disable-next-line consistent-return
 const getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
@@ -15,6 +14,7 @@ const getCards = async (req, res, next) => {
   }
 };
 
+// eslint-disable-next-line consistent-return
 const createCard = async (req, res, next) => {
   try {
     const { name, link } = req.body;
@@ -23,7 +23,7 @@ const createCard = async (req, res, next) => {
     return res.send(card);
   } catch (err) {
     if (err instanceof mongoose.Error.ValidationError) {
-      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
+      return next(new CastError('Not correct data'));
     }
     next(err);
   }
@@ -32,63 +32,59 @@ const createCard = async (req, res, next) => {
 // eslint-disable-next-line consistent-return
 const deleteCard = async (req, res, next) => {
   try {
-    const card = await Card.findByIdAndRemove(req.params.cardId);
+    const card = await Card.findById(req.params.cardId);
     if (card == null) {
-      return res
-        .status(WRONG_ID_CODE)
-        .send({ message: 'Card with this id not found' });
+      next(new NotFoundError('Card with this id not found'));
     }
     if (card.owner._id.toString() !== req.user.toString()) {
-      return res.status(403).send({ message: 'You can not delete this card' });
+      next(new AccessError('You can not delete this card'));
+    } else {
+      card.remove();
+      return res.send(card);
     }
-    return res.send(card);
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
-      return res
-        .status(WRONG_DATA_CODE)
-        .send({ message: 'Card with this id not found' });
+      return next(new NotFoundError('Card with this id not found'));
     }
     next(err);
   }
 };
 
+// eslint-disable-next-line consistent-return
 const addLike = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
     if (card == null) {
-      return res
-        .status(WRONG_ID_CODE)
-        .send({ message: 'Card with this id not found' });
+      return next(new NotFoundError('Card with this id not found'));
     }
     return res.send(card);
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
-      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
+      return next(new CastError('Not correct data'));
     }
     next(err);
   }
 };
 
+// eslint-disable-next-line consistent-return
 const removeLike = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
     if (card == null) {
-      return res
-        .status(WRONG_ID_CODE)
-        .send({ message: 'Card with this id not found' });
+      return next(new NotFoundError('Card with this id not found'));
     }
     return res.send(card);
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
-      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
+      return next(new CastError('Not correct data'));
     }
     next(err);
   }

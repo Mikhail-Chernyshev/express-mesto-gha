@@ -1,18 +1,17 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
-const mongoose = require("mongoose");
+const express = require('express');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
 // eslint-disable-next-line import/no-unresolved
-const { errors, celebrate, Joi } = require("celebrate");
-const { WRONG_ID_CODE } = require("./utils/constants");
-const routesCards = require("./routes/cards");
-const routesUsers = require("./routes/users");
-const auth = require("./middlewares/auth");
-const { login, createUser } = require("./controllers/users");
+const { errors, celebrate, Joi } = require('celebrate');
+const routesCards = require('./routes/cards');
+const routesUsers = require('./routes/users');
+const auth = require('./middlewares/auth');
+const { login, createUser } = require('./controllers/users');
 const errorServer = require('./middlewares/error');
+const NotFoundError = require('./errors/NotFoundError');
 
-const { PORT = 4000, MONGO_URL = "mongodb://localhost:27017/mestodb" } =
-  process.env;
+const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 mongoose.connect(MONGO_URL, { useNewUrlParser: true });
 
@@ -23,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.post(
-  "/signin",
+  '/signin',
   celebrate({
     body: Joi.object().keys({
       email: Joi.string().required().email(),
@@ -33,7 +32,7 @@ app.post(
   login
 );
 app.post(
-  "/signup",
+  '/signup',
   celebrate({
     body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
@@ -45,7 +44,7 @@ app.post(
       password: Joi.string().required(),
     }),
   }),
-  createUser
+  createUser,
 );
 
 app.use(auth);
@@ -53,7 +52,7 @@ app.use('/cards', routesCards);
 app.use('/users', routesUsers);
 
 app.use('*', auth, (req, res, next) => {
-  next(err);
+  next(new NotFoundError('Маршрут не найден'));
 });
 app.use(errors());
 app.use((err, req, res, next) => { errorServer(err, res, next); });

@@ -1,18 +1,17 @@
 const bcrypt = require('bcrypt');
 const { default: mongoose } = require('mongoose');
-const {
-  WRONG_DATA_CODE,
-  WRONG_ID_CODE,
-  ERROR_SERVER_CODE,
-} = require('../utils/constants');
 const User = require('../models/user');
 const { signToken } = require('../utils/jwt');
+const CastError = require('../errors/CastError');
+const AuthError = require('../errors/AuthError');
+const ValidationError = require('../errors/ValidationError');
+const NotFoundError = require('../errors/NotFoundError');
 
 const getMe = (req, res, next) => {
   User.findById(req.user)
     .then((user) => {
       if (!user) {
-        return res.status(401).send('Not correct data');
+        return next(new CastError('Not correct data'));
       }
       return res.status(200).send({
         name: user.name,
@@ -28,18 +27,17 @@ const getMe = (req, res, next) => {
 // eslint-disable-next-line consistent-return
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  if (!email || !password) { return res.status(400).send({ message: 'Password or email empty' }); }
 
   User.findOne({ email })
     .select('+password')
     // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
-        return res.status(401).send({ message: 'Wrong email or password' });
+        return next(new AuthError('Wrong email or password'));
       }
       // eslint-disable-next-line consistent-return
       bcrypt.compare(password, user.password).then((match) => {
-        if (!match) { return res.status(401).send({ message: 'Wrong password or email' }); }
+        if (!match) { return next(new AuthError('Wrong email or password')); }
         const result = signToken(user.id);
         res
           .status(200)
@@ -48,8 +46,9 @@ const login = (req, res, next) => {
             httpOnly: true,
           })
           .send({ result, message: 'Athorization successful' });
+        console.log(req);
 
-        if (!result) return res.status(500).send({ message: 'Token wrong' });
+        if (!result) return next(new AuthError('Wrong email or password'));
       });
     })
     .catch((err) => next(err));
@@ -57,11 +56,6 @@ const login = (req, res, next) => {
 
 // eslint-disable-next-line consistent-return
 const createUser = async (req, res, next) => {
-  if (!req.body.email || !req.body.password) {
-    return res.status(400).json({
-      message: 'Логин и пароль обязательны для заполнения',
-    });
-  }
   const { body } = req;
   const {
     email, password, name, about, avatar,
@@ -72,9 +66,7 @@ const createUser = async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (user) {
-      res
-        .status(409)
-        .json({ message: 'Пользователь с таким email уже зарегистрирован' });
+      next(new CastError('Пользователь с таким email уже зарегистрирован'));
     } else {
       await User.create({
         email,
@@ -94,40 +86,39 @@ const createUser = async (req, res, next) => {
     }
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return res.status(400).json({
-        message: 'Wrong name',
-      });
+      next(new ValidationError('Wrong name'));
     }
     next(err);
   }
 };
 
+// eslint-disable-next-line consistent-return
 const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     return res.send(users);
   } catch (err) {
-    next(err)
+    next(err);
   }
 };
 
+// eslint-disable-next-line consistent-return
 const getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId);
     if (user == null) {
-      return res
-        .status(WRONG_ID_CODE)
-        .send({ message: 'User with this id not found' });
+      return next(new NotFoundError('User with this id not found'));
     }
     return res.send(user);
   } catch (err) {
-    if (err instanceof mongoose.Error.CastError) {
-      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
+    if (err.name === 'CastError') {
+      return next(new CastError('Not correct data'));
     }
     next(err);
   }
 };
 
+// eslint-disable-next-line consistent-return
 const updateUser = async (req, res, next) => {
   try {
     const { name, about } = req.body;
@@ -137,22 +128,21 @@ const updateUser = async (req, res, next) => {
       { new: true, runValidators: true },
     );
     if (user == null) {
-      return res
-        .status(WRONG_ID_CODE)
-        .send({ message: 'User with this id not found' });
+      return next(new NotFoundError('User with this id not found'));
     }
     return res.send(user);
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
-      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
+      return next(new CastError('Not correct data'));
     }
     if (err.name === 'ValidationError') {
-      return res.status(WRONG_DATA_CODE).send({ message: 'Not correct data' });
+      return next(new CastError('Not correct data'));
     }
     next(err);
   }
 };
 
+// eslint-disable-next-line consistent-return
 const updateAvatar = async (req, res, next) => {
   const { avatar } = req.body;
 
@@ -163,16 +153,12 @@ const updateAvatar = async (req, res, next) => {
       { new: true, runValidators: true },
     );
     if (user == null) {
-      return res
-        .status(WRONG_ID_CODE)
-        .send({ message: 'User with this id not found' });
+      return next(new NotFoundError('User with this id not found'));
     }
     return res.send(user);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return res
-        .status(WRONG_DATA_CODE)
-        .send({ message: 'User with this id not found' });
+      return next(new NotFoundError('User with this id not found'));
     }
     next(err);
   }
