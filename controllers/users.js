@@ -63,30 +63,47 @@ const createUser = async (req, res, next) => {
 
   try {
     const hashPassword = await bcrypt.hash(password, 10);
-    const user = await User.findOne({ email });
 
+    const user = await User.findOne({ email });
     if (user) {
       next(new CastError('Пользователь с таким email уже зарегистрирован'));
     } else {
       await User.create({
+
         email,
+
         password: hashPassword,
+
         name,
+
         about,
+
         avatar,
+
       });
+
       res.status(200).send({
+
         user: {
+
           email,
+
           name,
+
           about,
+
           avatar,
+
         },
+
       });
     }
   } catch (err) {
     if (err.name === 'ValidationError') {
       next(new ValidationError('Wrong name'));
+    }
+    if (err.code === 11000) {
+      next(new CastError('Пользователь с таким email уже зарегистрирован'));
     }
     next(err);
   }

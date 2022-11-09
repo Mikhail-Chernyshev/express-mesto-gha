@@ -34,14 +34,12 @@ const deleteCard = async (req, res, next) => {
   try {
     const card = await Card.findById(req.params.cardId);
     if (card == null) {
-      next(new NotFoundError('Card with this id not found'));
+      return next(new NotFoundError('Card with this id not found'));
     }
     if (card.owner._id.toString() !== req.user.toString()) {
-      next(new AccessError('You can not delete this card'));
-    } else {
-      card.remove();
-      return res.send(card);
-    }
+      return next(new AccessError('You can not delete this card'));
+    } await card.remove();
+    return res.send(card);
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
       return next(new NotFoundError('Card with this id not found'));
