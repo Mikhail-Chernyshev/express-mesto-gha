@@ -11,7 +11,7 @@ const { login, createUser } = require('./controllers/users');
 const errorServer = require('./middlewares/error');
 const NotFoundError = require('./errors/NotFoundError');
 
-const { PORT = 4000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
+const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 mongoose.connect(MONGO_URL, { useNewUrlParser: true });
 

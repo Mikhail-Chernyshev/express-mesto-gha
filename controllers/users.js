@@ -100,10 +100,10 @@ const createUser = async (req, res, next) => {
     }
   } catch (err) {
     if (err.name === 'ValidationError') {
-      next(new ValidationError('Wrong name'));
+      return next(new ValidationError('Wrong name'));
     }
     if (err.code === 11000) {
-      next(new CastError('Пользователь с таким email уже зарегистрирован'));
+      return next(new CastError('Пользователь с таким email уже зарегистрирован'));
     }
     next(err);
   }
