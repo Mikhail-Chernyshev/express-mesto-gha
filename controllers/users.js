@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const { default: mongoose } = require('mongoose');
+// const jwt = require('jsonwebtoken')
 const User = require('../models/user');
 const { signToken } = require('../utils/jwt');
 const CastError = require('../errors/CastError');
@@ -8,18 +9,17 @@ const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
 
 const getMe = (req, res, next) => {
+  // const { email } = req.body;
+  // User.findOne({ email })
   User.findById(req.user)
     .then((user) => {
+      // console.log(req)
       if (!user) {
         return next(new CastError('Not correct data'));
       }
-      return res.status(200).send({
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        email: user.email,
-        _id: user._id,
-      });
+      return res.status(200).send(
+        user,
+      );
     })
     .catch((err) => next(err));
 };
@@ -38,17 +38,17 @@ const login = (req, res, next) => {
       // eslint-disable-next-line consistent-return
       bcrypt.compare(password, user.password).then((match) => {
         if (!match) { return next(new AuthError('Wrong email or password')); }
-        const result = signToken(user.id);
+        const token = signToken(user.id);
         res
           .status(200)
-          .cookie('authorization', result, {
-            maxAge: 3600000 * 24 * 7,
-            httpOnly: true,
-          })
-          .send({ result, message: 'Athorization successful' });
-        console.log(req);
+          // .cookie('authorization', result, {
+          //   maxAge: 3600000 * 24 * 7,
+          //   httpOnly: true,
+          // })
+          .send({ token, message: 'Athorization successful' });
+        // console.log(req);
 
-        if (!result) return next(new AuthError('Wrong email or password'));
+        if (!token) return next(new AuthError('Wrong email or password'));
       });
     })
     .catch((err) => next(err));
@@ -162,7 +162,6 @@ const updateUser = async (req, res, next) => {
 // eslint-disable-next-line consistent-return
 const updateAvatar = async (req, res, next) => {
   const { avatar } = req.body;
-
   try {
     const user = await User.findByIdAndUpdate(
       req.user,

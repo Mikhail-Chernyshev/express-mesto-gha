@@ -4,22 +4,32 @@ const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 // eslint-disable-next-line import/no-unresolved
 const { errors, celebrate, Joi } = require('celebrate');
+const cors = require('cors');
 const routesCards = require('./routes/cards');
 const routesUsers = require('./routes/users');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const errorServer = require('./middlewares/error');
 const NotFoundError = require('./errors/NotFoundError');
+// const cors = require('./middlewares/cors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
+const { PORT = 4000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 mongoose.connect(MONGO_URL, { useNewUrlParser: true });
 
 const app = express();
+
+app.use(cors({
+  Origin: 'http://localhost:3000/',
+}));
+
 app.use(cookieParser());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.use(requestLogger);
 
 app.post(
   '/signin',
@@ -54,6 +64,8 @@ app.use('/users', routesUsers);
 app.use('*', auth, (req, res, next) => {
   next(new NotFoundError('Маршрут не найден'));
 });
+
+app.use(errorLogger);
 app.use(errors());
 app.use((err, req, res, next) => { errorServer(err, res, next); });
 

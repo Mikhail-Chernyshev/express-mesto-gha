@@ -10,8 +10,7 @@ const extractBearerToken = (header) => header.replace('Bearer ', '');
 
 // eslint-disable-next-line consistent-return
 module.exports = (req, res, next) => {
-  const tokenIs = req.cookies.authorization;
-
+  const tokenIs = req.headers.authorization;
   if (!tokenIs) {
     return next(new AuthError('You are not authorized'));
   }

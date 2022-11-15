@@ -17,6 +17,7 @@ const getCards = async (req, res, next) => {
 // eslint-disable-next-line consistent-return
 const createCard = async (req, res, next) => {
   try {
+    console.log(req.user)
     const { name, link } = req.body;
     const owner = req.user;
     const card = await Card.create({ name, link, owner });
@@ -51,9 +52,10 @@ const deleteCard = async (req, res, next) => {
 // eslint-disable-next-line consistent-return
 const addLike = async (req, res, next) => {
   try {
+    const { cardId } = req.params;
     const card = await Card.findByIdAndUpdate(
-      req.params.cardId,
-      { $addToSet: { likes: req.user._id } },
+      cardId,
+      { $addToSet: { likes: req.user } },
       { new: true },
     );
     if (card == null) {
@@ -73,7 +75,7 @@ const removeLike = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
-      { $pull: { likes: req.user._id } },
+      { $pull: { likes: req.user } },
       { new: true },
     );
     if (card == null) {
